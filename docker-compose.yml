@@ -1,6 +1,20 @@
 version: '3.2'
 
 services:
+  setup:
+    build:
+      context: setup/
+      args:
+        ELASTIC_VERSION: ${ELK_VERSION}
+    init: true
+    volumes:
+      - setup:/state:Z
+    environment:
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
+    networks:
+      - elk
   elasticsearch:
     build:
       context: elasticsearch/
@@ -21,7 +35,7 @@ services:
       - "9300:9300"
     environment:
       ES_JAVA_OPTS: "-Xmx2048m -Xms2048m"
-      ELASTIC_PASSWORD: changeme
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
       # Use single node discovery in order to disable production mode and avoid bootstrap checks.
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
       discovery.type: single-node
@@ -42,7 +56,7 @@ services:
       - "JAVA_OPTS=-Xms512m -Xmx512m"
       - "ENT_SEARCH_DEFAULT_PASSWORD=changeme"
       - "elasticsearch.username=elastic"
-      - "elasticsearch.password=changeme"
+      - "elasticsearch.password=gui@123"
       - "elasticsearch.host=http://elasticsearch:9200"
       - "allow_es_settings_modification=true"
       - "secret_management.encryption_keys=[4a2cd3f81d39bf28738c10db0ca782095ffac07279561809eecc722e0c20eb09]"
@@ -74,11 +88,12 @@ services:
         read_only: true
     ports:
       - "5044:5044"
-      - "5001:5000/tcp"
-      - "5001:5000/udp"
+      #- "5001:5000/tcp"
+      #- "5001:5000/udp"
       - "9600:9600"
     environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      LS_JAVA_OPTS: "-Xmx2g -Xms2g"
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
     networks:
       - elk
     depends_on:
@@ -96,6 +111,8 @@ services:
         source: ./kibana/config/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
         read_only: true
+    environment:
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
     ports:
       - "5601:5601"
     networks:
@@ -115,20 +132,23 @@ services:
     cap_drop: ["ALL"]
     ports:
     - 8200:8200
+    environment:
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
     command: >
        apm-server -e
          -E apm-server.rum.enabled=true
          -E setup.template.settings.index.number_of_replicas=0
          -E output.elasticsearch.hosts=["elasticsearch:9200"]
          -E output.elasticsearch.username=elastic
-         -E output.elasticsearch.password=changeme
+         -E output.elasticsearch.password=${ELASTIC_PASSWORD}
     networks:
       - elk
     depends_on:
       - elasticsearch
 networks:
   elk:
-    #external: true
-    driver: bridge
+    external: true
+    #driver: bridge
 volumes:
   elasticsearch:
+  setup:
