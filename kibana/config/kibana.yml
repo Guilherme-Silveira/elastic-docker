@@ -15,4 +15,3 @@ elasticsearch.password: ${KIBANA_SYSTEM_PASSWORD}
 enterpriseSearch.host: http://ent-search:3002
 
 xpack.encryptedSavedObjects.encryptionKey: "CYTzfppLgwJHd7uiVxG49t3n97L69b6Y"
-xpack.security.enabled: true
