@@ -56,7 +56,7 @@ services:
       - "JAVA_OPTS=-Xms512m -Xmx512m"
       - "ENT_SEARCH_DEFAULT_PASSWORD=changeme"
       - "elasticsearch.username=elastic"
-      - "elasticsearch.password=gui@123"
+      - "elasticsearch.password=${ELASTIC_PASSWORD:-}"
       - "elasticsearch.host=http://elasticsearch:9200"
       - "allow_es_settings_modification=true"
       - "secret_management.encryption_keys=[4a2cd3f81d39bf28738c10db0ca782095ffac07279561809eecc722e0c20eb09]"
