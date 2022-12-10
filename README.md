@@ -83,14 +83,6 @@ By default, the stack exposes the following ports:
 Elastic stack in development environments. For production setups, we recommend users to set up their host according to
 the instructions from the Elasticsearch documentation: [Important System Configuration][es-sys-config].**
 
-### SELinux
-
-On distributions which have SELinux enabled out-of-the-box you will need to either re-context the files or set SELinux
-into Permissive mode in order for docker-elk to start properly. For example on Redhat and CentOS, the following will
-apply the proper context:
-
-```console
-$ chcon -R system_u:object_r:admin_home_t:s0 docker-elk/
 ```
 
 ### Docker Desktop
