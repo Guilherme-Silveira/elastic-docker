@@ -31,7 +31,6 @@ own_. [sherifabdlnaby/elastdocker][elastdocker] is one example among others of p
   - [Contents](#contents)
   - [Requirements](#requirements)
     - [Host setup](#host-setup)
-    - [SELinux](#selinux)
     - [Docker Desktop](#docker-desktop)
       - [macOS](#macos)
   - [Usage](#usage)
