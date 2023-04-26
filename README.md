@@ -1,74 +1,55 @@
-# Elastic stack (ELK) on Docker
+# Elastic Stack on Docker
 
-Run the latest version of the [Elastic stack][elk-stack] with Docker and Docker Compose.
+Execute a versão mais recente do [Elastic stack][elk-stack] com Docker e Docker Compose.
 
-It gives you the ability to analyze any data set by using the searching/aggregation capabilities of Elasticsearch and
-the visualization power of Kibana.
+Ele oferece a capacidade de analisar qualquer conjunto de dados usando os recursos de pesquisa/agregação do Elasticsearch e
+o poder de visualização de Kibana.
 
 
-*The Docker images backing this stack include [X-Pack][xpack] with [paid features][paid-features]
-enabled by default (see [How to disable paid features](#how-to-disable-paid-features) to disable them). **The [trial
-license][trial-license] is valid for 30 days**. After this license expires, you can continue using the free features
-seamlessly, without losing any data.*
-
----
-
-## Philosophy
-
-We aim at providing the simplest possible entry into the Elastic stack for anybody who feels like experimenting with
-this powerful combo of technologies. This project's default configuration is purposely minimal and unopinionated. It
-does not rely on any external dependency or custom automation to get things up and running.
-
-Instead, we believe in good documentation so that you can use this repository as a template, tweak it, and make it _your
-own_. [sherifabdlnaby/elastdocker][elastdocker] is one example among others of project that builds upon this idea.
+*O cluster é pré-configurado com uma licença Platinum Trial (consulte [Como desativar recursos pagos](#how-to-disable-paid-features) para desativá-los). **A
+licença [trial-license] é válida por 30 dias**. Depois que esta licença expirar, você poderá continuar usando os recursos gratuitos
+perfeitamente, sem perder nenhum dado.*
 
 ---
 
-## Contents
+## Sumário
 
-- [Elastic stack (ELK) on Docker](#elastic-stack-elk-on-docker)
-  - [Philosophy](#philosophy)
-  - [Contents](#contents)
-  - [Requirements](#requirements)
-    - [Host setup](#host-setup)
+---
+- [Elastic Stack on Docker](#elastic-stack-on-docker)
+  - [Sumário](#sumário)
+  - [Requisitos](#requisitos)
+    - [Configurações necessárias](#configurações-necessárias)
+    - [Portas expostas pela Elastic Stack](#portas-expostas-pela-elastic-stack)
     - [Docker Desktop](#docker-desktop)
       - [macOS](#macos)
-  - [Usage](#usage)
-    - [Version selection](#version-selection)
-    - [Bringing up the stack](#bringing-up-the-stack)
-    - [Cleanup](#cleanup)
+  - [Execução](#execução)
+    - [Versão da Stack](#versão-da-stack)
+    - [Senha dos usuários de sistema](#senha-dos-usuários-de-sistema)
+    - [Executar a Stack](#executar-a-stack)
+    - [Upgrade de versão](#upgrade-de-versão)
+    - [Desligar a Stack](#desligar-a-stack)
+    - [Remover Stack](#remover-stack)
   - [Initial setup](#initial-setup)
-    - [Setting up user authentication](#setting-up-user-authentication)
-    - [Injecting data](#injecting-data)
-  - [Configuration](#configuration)
-    - [How to configure Elasticsearch](#how-to-configure-elasticsearch)
-    - [How to configure Kibana](#how-to-configure-kibana)
-    - [How to configure Logstash](#how-to-configure-logstash)
-    - [How to configure Enterprise Search](#how-to-configure-enterprise-search)
-    - [How to configure APM Server](#how-to-configure-apm-server)
-    - [How to disable paid features](#how-to-disable-paid-features)
-    - [How to scale out the Elasticsearch cluster](#how-to-scale-out-the-elasticsearch-cluster)
-  - [Extensibility](#extensibility)
-    - [How to add plugins](#how-to-add-plugins)
-    - [How to enable the provided extensions](#how-to-enable-the-provided-extensions)
-  - [JVM tuning](#jvm-tuning)
-    - [How to specify the amount of memory used by a service](#how-to-specify-the-amount-of-memory-used-by-a-service)
-    - [How to enable a remote JMX connection to a service](#how-to-enable-a-remote-jmx-connection-to-a-service)
-  - [Going further](#going-further)
-    - [Plugins and integrations](#plugins-and-integrations)
+    - [Autenticação](#autenticação)
+    - [Acessar Kibana](#acessar-kibana)
+  - [Configuração](#configuração)
+    - [Diretório de configuração de cada componente](#diretório-de-configuração-de-cada-componente)
+    - [Expiração da Licença](#expiração-da-licença)
+  - [Extensão](#extensão)
+    - [Como adicionar plugins](#como-adicionar-plugins)
+  - [Fleet/APM](#fleetapm)
 
-## Requirements
+---
+## Requisitos
+---
+### Configurações necessárias
 
-### Host setup
-
-* [Docker Engine](https://docs.docker.com/install/) version **17.05** or newer
-* [Docker Compose](https://docs.docker.com/compose/install/) version **1.20.0** or newer
+* [Docker Engine](https://docs.docker.com/install/) versão **17.05** ou mais recente
+* [Docker Compose](https://docs.docker.com/compose/install/) versão **1.20.0** ou mais recente
 * 1.5 GB of RAM
 
-*:information_source: Especially on Linux, make sure your user has the [required permissions][linux-postinstall] to
-interact with the Docker daemon.*
-
-By default, the stack exposes the following ports:
+---
+### Portas expostas pela Elastic Stack
 
 * 5044: Logstash Beats input
 * 9600: Logstash monitoring API
@@ -76,226 +57,196 @@ By default, the stack exposes the following ports:
 * 9300: Elasticsearch TCP transport
 * 5601: Kibana
 * 3002: Enterprise Search
-* 8200: APM Server
+* 8200: APM Server Integration
+* 8220: Fleet Server
 
-**:warning: Elasticsearch's [bootstrap checks][booststap-checks] were purposely disabled to facilitate the setup of the
-Elastic stack in development environments. For production setups, we recommend users to set up their host according to
-the instructions from the Elasticsearch documentation: [Important System Configuration][es-sys-config].**
-
-```
-
+---
 ### Docker Desktop
 
 
 #### macOS
 
-The default configuration of _Docker Desktop for Mac_ allows mounting files from `/Users/`, `/Volume/`, `/private/`,
-`/tmp` and `/var/folders` exclusively. Make sure the repository is cloned in one of those locations or follow the
-instructions from the [documentation][mac-filesharing] to add more locations.
+A configuração padrão do _Docker Desktop para Mac_ permite montar arquivos de `/Users/`, `/Volume/`, `/private/`,
+`/tmp` e `/var/folders` exclusivamente. Certifique-se de que o repositório está clonado em um desses locais.
 
-## Usage
+---
+## Execução
+---
+### Versão da Stack
 
-### Version selection
+Esse repositório está configurado com a versão 8.7.0 da Elastic Stack. Para mudar a versão da Stack, accesse o arquivo `.env` que está localizado na raiz desse repositório e mude o valor da variável de ambiente `ELK_VERSION` para a versão desejada.
 
-This repository tries to stay aligned with the latest version of the Elastic stack. The `main` branch tracks the current
-major version (8.x).
+---
+### Senha dos usuários de sistema
 
-To use a different version of the core Elastic components, simply change the version number inside the `.env` file. If
-you are upgrading an existing stack, please carefully read the note in the next section.
+Para trocar a senha dos usuários de sistema, incluindo a senha do usuário `elastic`, acesse o arquivo `.env` que está localizado na raiz desse repositório e mude o valor das variáveis de ambiente `ELASTIC_PASSWORD`, `LOGSTASH_INTERNAL_PASSWORD` e `KIBANA_SYSTEM_PASSWORD`.
 
-**:warning: Always pay attention to the [official upgrade instructions][upgrade] for each individual component before
-performing a stack upgrade.**
+---
+### Executar a Stack
 
-### Bringing up the stack
-
-Clone this repository onto the Docker host that will run the stack, then start services locally using Docker Compose:
+No diretório raiz do projeto, execute o seguinte comando:
 
 ```console
-$ docker-compose up
+$ docker-compose up -d
+```
+---
+### Upgrade de versão
+
+Para atualizar a versão da Stack, acesse o arquivo `.env` localizado no diretório raiz do repositório e modifique a veriável de ambiente `ELK_VERSION` para a versão desejada. Para efetivamente aplicar a nova versão, remova os containers em execução:
+ ```console
+ $ docker-compose down
+ ```
+  **NÃO USE O `-v`, PARA EVITAR QUE OS DADOS SEJAM REMOVIDOS NO PROCESSO** e, em seguida execute os seguintes comandos:
+
+```console
+$ docker-compose build
+$ docker-compose up -d
 ```
 
-You can also run all services in the background (detached mode) by adding the `-d` flag to the above command.
+Uma alternativa aos comandos acima seria executar o seguinte comando:
 
-**:warning: You must rebuild the stack images with `docker-compose build` whenever you switch branch or update the
-version of an already existing stack.**
+```console
+$ docker-compose up -d --build
+```
 
-If you are starting the stack for the very first time, please read the section below attentively.
+**:Aviso: Você também precisa reconstruir as imagens da Stack executando o comando `docker-compose build` toda vez que você modificar alguma configuração nos arquivos yaml dos componentes da Stack.**
 
-### Cleanup
+Se você está executando esse Stack pela primeira vez, por favor, leia atentamente o bloco acima.
 
-Elasticsearch data is persisted inside a volume by default.
+---
+### Desligar a Stack
 
-In order to entirely shutdown the stack and remove all persisted data, use the following Docker Compose command:
+Para simplesmente parar os containers da Stack que estão em execução e não remover os dados, execute o seguinte comando:
+
+```console
+$ docker-compose stop
+```
+
+---
+### Remover Stack
+
+Os dados do Elasticsearch são persistidos em um volume por padrão. 
+
+Para remover completamente a Stack, incluindo os dados persistidos, execute o seguinte comando:
 
 ```console
 $ docker-compose down -v
 ```
 
+---
 ## Initial setup
 
-### Setting up user authentication
+---
+### Autenticação
 
-*:information_source: Refer to [How to disable paid features](#how-to-disable-paid-features) to disable authentication.*
-
-The stack is pre-configured with the following **privileged** bootstrap user:
-
-* user: *elastic*
-* password: *gui@123*
-
-### Injecting data
-
-Give Kibana about a minute to initialize, then access the Kibana web UI by opening <http://localhost:5601> in a web
-browser and use the following credentials to log in:
+A Stack é pré-configurada, por padrão, com as seguintes credenciais:
 
 * user: *elastic*
-* password: *\<your generated elastic password>*
+* password: *changeme*
 
-You can also load the sample data provided by your Kibana installation.
+---
+### Acessar Kibana
 
+Após mais ou menos 1 minuto, o Kibana já deve estar operacional. Para acessá-lo, entre no seu navegador e acesse a seguinte URL <http://localhost:5601> 
 
-## Configuration
+Credenciais:
 
-*:information_source: Configuration is not dynamically reloaded, you will need to restart individual components after
-any configuration change.*
+* user: *elastic*
+* password: *\<senha definida no arquivo `.env`>*
 
-### How to configure Elasticsearch
+---
+## Configuração
 
-The Elasticsearch configuration is stored in [`elasticsearch/config/elasticsearch.yml`][config-es].
+---
+*Configurações no arquivos YAML não dinâmicas, ou seja, caso mude algo nas configurações definidas por padrão, reconstrua as imagens (`$ docker-compose build`) e reinicie o ambiente (`$ docker-compose down` e depois `$ docker-compose up -d`).
 
-You can also specify the options you want to override by setting environment variables inside the Compose file:
+---
+### Diretório de configuração de cada componente
 
-```yml
-elasticsearch:
+* Elasticsearch: `elasticsearch/config/`
+* Kibana: `kibana/config/`
+* Logstash : `logstash/config/`
 
-  environment:
-    network.host: _non_loopback_
-    cluster.name: my-cluster
+**Enterprise Search e Fleet Server são configurados com variáveis de ambiente no próprio docker-compose.yaml**
+
+---
+
+### Expiração da Licença
+
+Após 30 dias, a licença Platinum Trial irá expirar. Caso você não precisa dos dados que estão atualmente armazenados no cluster e queira continuar usando a licença Platinum, remova toda a Stack, incluindo os volumes:
+
+```console
+$ docker-compose down -v
 ```
 
-Please refer to the following documentation page for more details about how to configure Elasticsearch inside Docker
-containers: [Install Elasticsearch with Docker][es-docker].
+e crie a Stack novamente:
 
-### How to configure Kibana
-
-The Kibana default configuration is stored in [`kibana/config/kibana.yml`][config-kbn].
-
-It is also possible to map the entire `config` directory instead of a single file.
-
-Please refer to the following documentation page for more details about how to configure Kibana inside Docker
-containers: [Install Kibana with Docker][kbn-docker].
-
-### How to configure Logstash
-
-The Logstash configuration is stored in [`logstash/config/logstash.yml`][config-ls].
-
-It is also possible to map the entire `config` directory instead of a single file, however you must be aware that
-Logstash will be expecting a [`log4j2.properties`][log4j-props] file for its own logging.
-
-Please refer to the following documentation page for more details about how to configure Logstash inside Docker
-containers: [Configuring Logstash for Docker][ls-docker].
-
-### How to configure Enterprise Search
-
-You can also specify the options you want to override by setting environment variables inside the Compose file:
-
-```yml
-ent-search:
-
-  environment:
-    - "JAVA_OPTS=-Xms512m -Xmx512m"
+```console
+$ docker-compose up -d
 ```
 
-### How to configure APM Server
-You can also specify the options you want to override by setting the command section inside the Compose file:
+Esse novo ambiente estará com uma nova licença de 30 dias, porém todos os dados que você tinha anteriormente serão perdidos, então use esse approach com cautela.
 
-```yml
-apm-server:
+---
+## Extensão
 
-  command: >
-       apm-server -e
-         -E apm-server.rum.enabled=true
-```
+---
+### Como adicionar plugins
 
-### How to disable paid features
+Para adicionar plugins aos componentes da Elastic Stack, siga os seguintes passos:
 
-Switch the value of Elasticsearch's `xpack.license.self_generated.type` setting from `trial` to `basic` (see [License
-settings][trial-license]).
+1. Adicione uma cláusula `RUN`  ao `Dockerfile` correspondente (eg. `RUN logstash-plugin install logstash-filter-json`)
+2. Reconstrua as imagens usando o comando `docker-compose build`
 
-You can also cancel an ongoing trial before its expiry date — and thus revert to a basic license — either from the
-[License Management][license-mngmt] panel of Kibana, or using Elasticsearch's [Licensing APIs][license-apis].
+---
+## Fleet/APM
 
-### How to scale out the Elasticsearch cluster
+---
+Eu fiz algumas pesquisas e tive muita dificuldade em achar algum ambiente que o Elastic Agent já executasse automaticamente com a integração do Fleet Server e do APM. Devido a isso, gostaria de compartilhar como criar uma Agent Policy pré-configurada usando parâmetros no arquivo `kibana/config/kibana.yml` para configurar as integrações do Fleet Server e do APM:
+   ```yaml
+    xpack.fleet.packages:
+    - name: apm
+    version: latest
+    - name: elastic_agent
+    version: latest
+    - name: fleet_server
+    version: latest
+    - name: system
+    version: latest
 
-Follow the instructions from the Wiki: [Scaling out Elasticsearch](https://github.com/deviantony/docker-elk/wiki/Elasticsearch-cluster)
+    xpack.fleet.agentPolicies:
+    - name: Fleet APM Server
+    id: fleet-server
+    namespace: default
+    is_default_fleet_server: true
+    unenroll_timeout: 900
+    monitoring_enabled:
+    - logs
+    - metrics
+    is_default: true
+    package_policies:
+    - name: apm-1
+      id: apm-1
+      package:
+        name: apm
+      inputs:
+      - type: apm
+        keep_enabled: true
+        vars:
+        - name: host
+          value: 0.0.0.0:8200
+          frozen: true
+        - name: url
+          value: "http://0.0.0.0:8200"
+          frozen: true
+        - name: enable_rum
+          value: true
+          frozen: true
+    - name: fleet_server-1
+      id: fleet_server-1
+      package:
+        name: fleet_server
 
-## Extensibility
-
-### How to add plugins
-
-To add plugins to any ELK component you have to:
-
-1. Add a `RUN` statement to the corresponding `Dockerfile` (eg. `RUN logstash-plugin install logstash-filter-json`)
-1. Add the associated plugin code configuration to the service configuration (eg. Logstash input/output)
-1. Rebuild the images using the `docker-compose build` command
-
-### How to enable the provided extensions
-
-A few extensions are available inside the [`extensions`](extensions) directory. These extensions provide features which
-are not part of the standard Elastic stack, but can be used to enrich it with extra integrations.
-
-The documentation for these extensions is provided inside each individual subdirectory, on a per-extension basis. Some
-of them require manual changes to the default ELK configuration.
-
-## JVM tuning
-
-### How to specify the amount of memory used by a service
-
-By default, both Elasticsearch and Logstash start with [1/4 of the total host
-memory](https://docs.oracle.com/javase/8/docs/technotes/guides/vm/gctuning/parallel.html#default_heap_size) allocated to
-the JVM Heap Size.
-
-The startup scripts for Elasticsearch and Logstash can append extra JVM options from the value of an environment
-variable, allowing the user to adjust the amount of memory that can be used by each component:
-
-| Service       | Environment variable |
-|---------------|----------------------|
-| Elasticsearch | ES_JAVA_OPTS         |
-| Logstash      | LS_JAVA_OPTS         |
-
-To accomodate environments where memory is scarce (Docker for Mac has only 2 GB available by default), the Heap Size
-allocation is capped by default to 256MB per service in the `docker-compose.yml` file. If you want to override the
-default JVM configuration, edit the matching environment variable(s) in the `docker-compose.yml` file.
-
-For example, to increase the maximum JVM Heap Size for Logstash:
-
-```yml
-logstash:
-
-  environment:
-    LS_JAVA_OPTS: -Xmx1g -Xms1g
-```
-
-### How to enable a remote JMX connection to a service
-
-As for the Java Heap memory (see above), you can specify JVM options to enable JMX and map the JMX port on the Docker
-host.
-
-Update the `{ES,LS}_JAVA_OPTS` environment variable with the following content (I've mapped the JMX service on the port
-18080, you can change that). Do not forget to update the `-Djava.rmi.server.hostname` option with the IP address of your
-Docker host (replace **DOCKER_HOST_IP**):
-
-```yml
-logstash:
-
-  environment:
-    LS_JAVA_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=18080 -Dcom.sun.management.jmxremote.rmi.port=18080 -Djava.rmi.server.hostname=DOCKER_HOST_IP -Dcom.sun.management.jmxremote.local.only=false
-```
-
-## Going further
-
-### Plugins and integrations
-
-See the following Wiki pages:
-
-* [External applications](https://github.com/deviantony/docker-elk/wiki/External-applications)
-* [Popular integrations](https://github.com/deviantony/docker-elk/wiki/Popular-integrations)
+    xpack.fleet.agents.elasticsearch.hosts: ["http://elasticsearch:9200"]
+    xpack.fleet.agents.fleet_server.hosts: ["http://fleet-server:8220"]
+   ```
