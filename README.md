@@ -1,6 +1,6 @@
 # Elastic Stack on Docker
 
-Execute a versão mais recente do [Elastic stack][elk-stack] com Docker e Docker Compose.
+Execute a versão mais recente da Elastic Stack com Docker e Docker Compose.
 
 Ele oferece a capacidade de analisar qualquer conjunto de dados usando os recursos de pesquisa/agregação do Elasticsearch e
 o poder de visualização de Kibana.
@@ -103,7 +103,7 @@ $ docker-compose build
 $ docker-compose up -d
 ```
 
-Uma alternativa aos comandos acima seria executar o seguinte comando:
+Uma alternativa ao comandos de `build` e `up` acima seria executar o seguinte comando:
 
 ```console
 $ docker-compose up -d --build
@@ -158,7 +158,7 @@ Credenciais:
 ## Configuração
 
 ---
-*Configurações no arquivos YAML não dinâmicas, ou seja, caso mude algo nas configurações definidas por padrão, reconstrua as imagens (`$ docker-compose build`) e reinicie o ambiente (`$ docker-compose down` e depois `$ docker-compose up -d`).
+Configurações nos arquivos YAML não são dinâmicas, ou seja, caso mude alguma das configurações definidas por padrão, reconstrua as imagens (`docker-compose build`) e reinicie o ambiente (`docker-compose down` e depois `docker-compose up -d`).
 
 ---
 ### Diretório de configuração de cada componente
@@ -202,7 +202,7 @@ Para adicionar plugins aos componentes da Elastic Stack, siga os seguintes passo
 ## Fleet/APM
 
 ---
-Eu fiz algumas pesquisas e tive muita dificuldade em achar algum ambiente que o Elastic Agent já executasse automaticamente com a integração do Fleet Server e do APM. Devido a isso, gostaria de compartilhar como criar uma Agent Policy pré-configurada usando parâmetros no arquivo `kibana/config/kibana.yml` para configurar as integrações do Fleet Server e do APM:
+Eu fiz algumas pesquisas e tive muita dificuldade em achar algum ambiente que o Elastic Agent já executasse automaticamente a integração do Fleet Server e do APM. Devido a isso, gostaria de compartilhar como criar uma Agent Policy pré-configurada usando parâmetros no arquivo `kibana/config/kibana.yml` para configurar as integrações do Fleet Server e do APM:
    ```yaml
     xpack.fleet.packages:
     - name: apm
