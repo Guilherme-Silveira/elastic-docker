@@ -154,6 +154,8 @@ services:
       KIBANA_FLEET_PASSWORD: "${ELASTIC_PASSWORD:-}"
       FLEET_INSECURE: "true"
       FLEET_SERVER_INSECURE_HTTP: "true"
+    volumes:
+      - ./agent-data:/usr/share/elastic-agent/state:rw
     depends_on:
       elasticsearch: { condition: service_healthy }
       kibana: { condition: service_healthy }
