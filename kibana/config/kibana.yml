@@ -19,15 +19,45 @@ xpack.encryptedSavedObjects.encryptionKey: "CYTzfppLgwJHd7uiVxG49t3n97L69b6Y"
 xpack.fleet.packages:
 - name: apm
   version: latest
+- name: elastic_agent
+  version: latest
+- name: fleet_server
+  version: latest
+- name: system
+  version: latest
 
 xpack.fleet.agentPolicies:
-- name: APM Server
-  id: apm-server
+- name: Fleet APM Server
+  id: fleet-server
   namespace: default
+  is_default_fleet_server: true
   unenroll_timeout: 900
+  monitoring_enabled:
+  - logs
+  - metrics
   is_default: true
   package_policies:
   - name: apm-1
     id: apm-1
     package:
       name: apm
+    inputs:
+    - type: apm
+      keep_enabled: true
+      vars:
+      - name: host
+        value: 0.0.0.0:8200
+        frozen: true
+      - name: url
+        value: "http://0.0.0.0:8200"
+        frozen: true
+      - name: enable_rum
+        value: true
+        frozen: true
+  - name: fleet_server-1
+    id: fleet_server-1
+    package:
+      name: fleet_server
+
+xpack.fleet.agents.elasticsearch.hosts: ["http://elasticsearch:9200"]
+xpack.fleet.agents.fleet_server.hosts: ["http://fleet-server:8220"]

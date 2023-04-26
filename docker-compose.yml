@@ -22,6 +22,10 @@ services:
         ELK_VERSION: $ELK_VERSION
     image: elasticsearch
     container_name: elasticsearch
+    healthcheck:
+      test: ["CMD-SHELL", "curl -u elastic:${ELASTIC_PASSWORD:-} -s http://elasticsearch:9200/_cluster/health?wait_for_status=yellow&timeout=500ms"]
+      retries: 300
+      interval: 1s
     volumes:
       - type: bind
         source: ./elasticsearch/config/elasticsearch.yml
@@ -106,6 +110,10 @@ services:
         ELK_VERSION: $ELK_VERSION
     image: kibana
     container_name: kibana
+    healthcheck:
+      test: ["CMD-SHELL", "curl -u elastic:${ELASTIC_PASSWORD:-} -s http://kibana:5601/api/status | grep 'All services are available'"]
+      retries: 300
+      interval: 1s
     volumes:
       - type: bind
         source: ./kibana/config/kibana.yml
@@ -121,30 +129,59 @@ services:
       - elasticsearch
       - ent-search
 
-  apm-server:
-    image: apm-server
-    container_name: apm-server
+  fleet-server:
+    container_name: fleet-server
+    hostname: fleet-server
+    image: elastic-agent
     build:
-      context: apm-server/
+      context: fleet-server/
       args:
         ELK_VERSION: $ELK_VERSION
-    cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
-    cap_drop: ["ALL"]
     ports:
-    - 8200:8200
+      - 8200:8200
+      - 8220:8220
     environment:
-      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
-    command: >
-       apm-server -e
-         -E apm-server.rum.enabled=true
-         -E setup.template.settings.index.number_of_replicas=0
-         -E output.elasticsearch.hosts=["elasticsearch:9200"]
-         -E output.elasticsearch.username=elastic
-         -E output.elasticsearch.password=${ELASTIC_PASSWORD}
+      FLEET_SERVER_ENABLE: "1"
+      FLEET_SERVER_POLICY_ID: "fleet-server"
+      FLEET_SERVER_ELASTICSEARCH_HOST: http://elasticsearch:9200
+      FLEET_SERVER_ELASTICSEARCH_USERNAME: "${ES_SUPERUSER_USER:-elastic}"
+      FLEET_SERVER_ELASTICSEARCH_PASSWORD: "${ELASTIC_PASSWORD:-}"
+      KIBANA_FLEET_HOST: "http://kibana:5601"
+      KIBANA_FLEET_USERNAME: "${ES_SUPERUSER_USER:-elastic}"
+      KIBANA_FLEET_PASSWORD: "${ELASTIC_PASSWORD:-}"
+      FLEET_INSECURE: "true"
+      FLEET_SERVER_INSECURE_HTTP: "true"
+    depends_on:
+      elasticsearch: { condition: service_healthy }
+      kibana: { condition: service_healthy }
     networks:
       - elk
-    depends_on:
-      - elasticsearch
+  ###### Legacy APM Server ######
+  #apm-server:
+  #  image: apm-server
+  #  container_name: apm-server
+  #  build:
+  #    context: apm-server/
+  #    args:
+  #      ELK_VERSION: $ELK_VERSION
+  #  cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
+  #  cap_drop: ["ALL"]
+  #  ports:
+  #  - 8200:8200
+  #  environment:
+  #    ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
+  #  command: >
+  #     apm-server -e
+  #       -E apm-server.rum.enabled=true
+  #       -E setup.template.settings.index.number_of_replicas=0
+  #       -E output.elasticsearch.hosts=["elasticsearch:9200"]
+  #       -E output.elasticsearch.username=elastic
+  #       -E output.elasticsearch.password=${ELASTIC_PASSWORD}
+  #  networks:
+  #    - elk
+  #  depends_on:
+  #    - elasticsearch
+
 networks:
   elk:
     #external: true
