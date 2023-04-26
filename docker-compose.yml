@@ -2,6 +2,7 @@ version: '3.2'
 
 services:
   setup:
+    container_name: setup
     build:
       context: setup/
       args:
@@ -186,8 +187,10 @@ services:
 
 networks:
   elk:
-    #external: true
+    name: elk
     driver: bridge
 volumes:
   elasticsearch:
+    name: elasticsearch
   setup:
+    name: setup
