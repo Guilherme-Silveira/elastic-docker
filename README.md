@@ -166,6 +166,7 @@ Configurações nos arquivos YAML não são dinâmicas, ou seja, caso mude algum
 * Elasticsearch: `elasticsearch/config/`
 * Kibana: `kibana/config/`
 * Logstash : `logstash/config/`
+* Fleet Server: `agent-data/` **Esse diretório só será criado após a primeira execução da Stack**
 
 **Enterprise Search e Fleet Server são configurados com variáveis de ambiente no próprio docker-compose.yaml**
 
