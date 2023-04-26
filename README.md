@@ -12,35 +12,35 @@ perfeitamente, sem perder nenhum dado.*
 
 ---
 
-## Sumário
+# Sumário
 
 ---
 - [Elastic Stack on Docker](#elastic-stack-on-docker)
-  - [Sumário](#sumário)
-  - [Requisitos](#requisitos)
+- [Sumário](#sumário)
+- [Requisitos](#requisitos)
     - [Configurações necessárias](#configurações-necessárias)
     - [Portas expostas pela Elastic Stack](#portas-expostas-pela-elastic-stack)
     - [Docker Desktop](#docker-desktop)
       - [macOS](#macos)
-  - [Execução](#execução)
+- [Execução](#execução)
     - [Versão da Stack](#versão-da-stack)
     - [Senha dos usuários de sistema](#senha-dos-usuários-de-sistema)
     - [Executar a Stack](#executar-a-stack)
     - [Upgrade de versão](#upgrade-de-versão)
     - [Desligar a Stack](#desligar-a-stack)
     - [Remover Stack](#remover-stack)
-  - [Initial setup](#initial-setup)
+- [Initial setup](#initial-setup)
     - [Autenticação](#autenticação)
     - [Acessar Kibana](#acessar-kibana)
-  - [Configuração](#configuração)
+- [Configuração](#configuração)
     - [Diretório de configuração de cada componente](#diretório-de-configuração-de-cada-componente)
     - [Expiração da Licença](#expiração-da-licença)
-  - [Extensão](#extensão)
+- [Extensão](#extensão)
     - [Como adicionar plugins](#como-adicionar-plugins)
-  - [Fleet/APM](#fleetapm)
+- [Fleet/APM](#fleetapm)
 
 ---
-## Requisitos
+# Requisitos
 ---
 ### Configurações necessárias
 
@@ -70,7 +70,7 @@ A configuração padrão do _Docker Desktop para Mac_ permite montar arquivos de
 `/tmp` e `/var/folders` exclusivamente. Certifique-se de que o repositório está clonado em um desses locais.
 
 ---
-## Execução
+# Execução
 ---
 ### Versão da Stack
 
@@ -134,7 +134,7 @@ $ docker-compose down -v
 ```
 
 ---
-## Initial setup
+# Initial setup
 
 ---
 ### Autenticação
@@ -155,7 +155,7 @@ Credenciais:
 * password: *\<senha definida no arquivo `.env`>*
 
 ---
-## Configuração
+# Configuração
 
 ---
 Configurações nos arquivos YAML não são dinâmicas, ou seja, caso mude alguma das configurações definidas por padrão, reconstrua as imagens (`docker-compose build`) e reinicie o ambiente (`docker-compose down` e depois `docker-compose up -d`).
@@ -189,7 +189,7 @@ $ docker-compose up -d
 Esse novo ambiente estará com uma nova licença de 30 dias, porém todos os dados que você tinha anteriormente serão perdidos, então use esse approach com cautela.
 
 ---
-## Extensão
+# Extensão
 
 ---
 ### Como adicionar plugins
@@ -200,7 +200,7 @@ Para adicionar plugins aos componentes da Elastic Stack, siga os seguintes passo
 2. Reconstrua as imagens usando o comando `docker-compose build`
 
 ---
-## Fleet/APM
+# Fleet/APM
 
 ---
 Eu fiz algumas pesquisas e tive muita dificuldade em achar algum ambiente que o Elastic Agent já executasse automaticamente a integração do Fleet Server e do APM. Devido a isso, gostaria de compartilhar como criar uma Agent Policy pré-configurada usando parâmetros no arquivo `kibana/config/kibana.yml` para configurar as integrações do Fleet Server e do APM:
