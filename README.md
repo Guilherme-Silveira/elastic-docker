@@ -131,6 +131,7 @@ Para remover completamente a Stack, incluindo os dados persistidos, execute o se
 
 ```console
 $ docker-compose down -v
+$ rm -rf ./agent-data/
 ```
 
 ---
