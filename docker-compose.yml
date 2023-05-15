@@ -134,6 +134,7 @@ services:
     container_name: fleet-server
     hostname: fleet-server
     image: elastic-agent
+    user: ':1000'
     build:
       context: fleet-server/
       args:
