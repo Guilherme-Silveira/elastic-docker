@@ -134,7 +134,7 @@ services:
     container_name: fleet-server
     hostname: fleet-server
     image: elastic-agent
-    user: ':1000'
+    user: root
     build:
       context: fleet-server/
       args:
@@ -156,7 +156,7 @@ services:
       FLEET_INSECURE: "true"
       FLEET_SERVER_INSECURE_HTTP: "true"
     volumes:
-      - ./agent-data:/usr/share/elastic-agent/state:rw
+      - agent-data:/usr/share/elastic-agent/state:Zrw
     depends_on:
       elasticsearch: { condition: service_healthy }
       kibana: { condition: service_healthy }
@@ -197,3 +197,5 @@ volumes:
     name: elasticsearch
   setup:
     name: setup
+  agent-data:
+    name: agent-data
