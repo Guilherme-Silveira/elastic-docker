@@ -58,6 +58,10 @@ xpack.fleet.agentPolicies:
     id: fleet_server-1
     package:
       name: fleet_server
+  - name: system-1
+    id: system-1
+    package:
+      name: system
 
 xpack.fleet.agents.elasticsearch.hosts: ["http://elasticsearch:9200"]
 xpack.fleet.agents.fleet_server.hosts: ["http://fleet-server:8220"]
