@@ -156,7 +156,7 @@ services:
       FLEET_INSECURE: "true"
       FLEET_SERVER_INSECURE_HTTP: "true"
     volumes:
-      - agent-data:/usr/share/elastic-agent/state:Zrw
+      - agent-data:/usr/share/elastic-agent/state:rw
     depends_on:
       elasticsearch: { condition: service_healthy }
       kibana: { condition: service_healthy }
