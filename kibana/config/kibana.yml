@@ -65,3 +65,4 @@ xpack.fleet.agentPolicies:
 
 xpack.fleet.agents.elasticsearch.hosts: ["http://elasticsearch:9200"]
 xpack.fleet.agents.fleet_server.hosts: ["http://fleet-server:8220"]
+xpack.reporting.capture.browser.chromium.disableSandbox: true
