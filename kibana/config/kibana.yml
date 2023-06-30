@@ -16,6 +16,10 @@ enterpriseSearch.host: http://ent-search:3002
 
 xpack.encryptedSavedObjects.encryptionKey: "CYTzfppLgwJHd7uiVxG49t3n97L69b6Y"
 
+## FIX - Problem to generate PDF/PNG report running Kibana in a Docker container (Ref. https://www.elastic.co/guide/en/kibana/7.17/reporting-production-considerations.html#reporting-docker-sandbox)
+xpack.screenshotting.browser.chromium.disableSandbox: true
+
+
 xpack.fleet.packages:
 - name: apm
   version: latest
