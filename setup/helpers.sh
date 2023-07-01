@@ -180,3 +180,61 @@ function ensure_role {
 
 	return $result
 }
+
+function create_snapshot_repo {
+	local elasticsearch_host="${ELASTICSEARCH_HOST:-elasticsearch}"
+	local -a args=( '-s' '-D-' '-m15' '-w' '%{http_code}'
+		"http://${elasticsearch_host}:9200/_snapshot/minio"
+		'-X' 'PUT'
+		'-H' 'Content-Type: application/json'
+		'-d' '{"type":"s3","settings":{"bucket":"es-snapshot","access_key":"minio","secret_key":"minio123","endpoint":"minio:9000","path_style_access":"true","protocol":"http"}}'
+		)
+
+	if [[ -n "${ELASTIC_PASSWORD:-}" ]]; then
+		args+=( '-u' "elastic:${ELASTIC_PASSWORD}" )
+	fi
+
+	local -i result=1
+	local output
+
+	output="$(curl "${args[@]}")"
+	if [[ "${output: -3}" -eq 200 ]]; then
+		result=0
+	fi
+
+	if ((result)); then
+		echo -e "\n${output::-3}\n"
+	fi
+
+	return $result
+}
+
+function create_slm_policy {
+	local elasticsearch_host="${ELASTICSEARCH_HOST:-elasticsearch}"
+	local -a args=( '-s' '-D-' '-m15' '-w' '%{http_code}'
+		"http://${elasticsearch_host}:9200/_slm/policy/daily-snapshots"
+		'-X' 'PUT'
+		'-H' 'Content-Type: application/json'
+		'-d' '{"schedule":"0 30 1 * * ?","name":"<daily-snap-{now/d}>","repository":"minio","config":{"ignore_unavailable":false,"include_global_state":true}}'
+		)
+
+	if [[ -n "${ELASTIC_PASSWORD:-}" ]]; then
+		args+=( '-u' "elastic:${ELASTIC_PASSWORD}" )
+	fi
+
+	local -i result=1
+	local output
+
+	output="$(curl "${args[@]}")"
+	if [[ "${output: -3}" -eq 200 ]]; then
+		result=0
+	fi
+
+	if ((result)); then
+		echo -e "\n${output::-3}\n"
+	fi
+
+	return $result
+}
+
+

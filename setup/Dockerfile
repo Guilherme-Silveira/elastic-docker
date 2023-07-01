@@ -10,7 +10,11 @@ COPY . /
 RUN set -eux; \
 	mkdir /state; \
 	chown elasticsearch /state; \
-	chmod +x /entrypoint.sh
+	chmod +x /entrypoint.sh 
+
+RUN set -eux; \
+	mkdir /usr/share/elasticsearch/config/certs; \
+	chown elasticsearch:root /usr/share/elasticsearch/config/certs
 
 USER elasticsearch:root
 

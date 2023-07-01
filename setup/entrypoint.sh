@@ -29,19 +29,61 @@ roles_files=(
 )
 
 # --------------------------------------------------------
+# Certificate creation
+if [ ! -f config/certs/ca.zip ]; then
+	echo "Creating CA";
+	bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
+	unzip config/certs/ca.zip -d config/certs;
+fi;
+if [ ! -f config/certs/certs.zip ]; then
+	echo "Creating certs";
+	echo -ne \
+	"instances:\n"\
+	"  - name: es01\n"\
+	"    dns:\n"\
+	"      - es01\n"\
+	"      - localhost\n"\
+	"    ip:\n"\
+	"      - 127.0.0.1\n"\
+	"  - name: es02\n"\
+	"    dns:\n"\
+	"      - es02\n"\
+	"      - localhost\n"\
+	"    ip:\n"\
+	"      - 127.0.0.1\n"\
+	"  - name: es03\n"\
+	"    dns:\n"\
+	"      - es03\n"\
+	"      - localhost\n"\
+	"    ip:\n"\
+	"      - 127.0.0.1\n"\
+	"  - name: es04\n"\
+	"    dns:\n"\
+	"      - es04\n"\
+	"      - localhost\n"\
+	"    ip:\n"\
+	"      - 127.0.0.1\n"\
+	> config/certs/instances.yml;
+	bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
+	unzip config/certs/certs.zip -d config/certs;
+fi;
+echo "Setting file permissions"
+
+# --------------------------------------------------------
 
 
 echo "-------- $(date) --------"
+
+
+log 'Waiting for availability of Elasticsearch'
+wait_for_elasticsearch
+sublog 'Elasticsearch is running'
 
 state_file="$(dirname ${BASH_SOURCE[0]})/state/.done"
 if [[ -e "$state_file" ]]; then
 	log "State file exists at '${state_file}', skipping setup"
 	exit 0
 fi
-
-log 'Waiting for availability of Elasticsearch'
-wait_for_elasticsearch
-sublog 'Elasticsearch is running'
 
 for role in "${!roles_files[@]}"; do
 	log "Role '$role'"
@@ -80,6 +122,10 @@ for user in "${!users_passwords[@]}"; do
 		create_user "$user" "${users_passwords[$user]}" "${users_roles[$user]}"
 	fi
 done
+
+create_snapshot_repo
+
+create_slm_policy
 
 mkdir -p "$(dirname "${state_file}")"
 touch "$state_file"

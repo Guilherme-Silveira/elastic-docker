@@ -26,6 +26,7 @@ perfeitamente, sem perder nenhum dado.*
     - [Versão da Stack](#versão-da-stack)
     - [Senha dos usuários de sistema](#senha-dos-usuários-de-sistema)
     - [Executar a Stack](#executar-a-stack)
+    - [Executar a Stack Hot-Warm-Cold-Frozen](#executar-a-stack-hot-warm-cold-frozen)
     - [Upgrade de versão](#upgrade-de-versão)
     - [Desligar a Stack](#desligar-a-stack)
     - [Remover Stack](#remover-stack)
@@ -87,8 +88,19 @@ Para trocar a senha dos usuários de sistema, incluindo a senha do usuário `ela
 No diretório raiz do projeto, execute o seguinte comando:
 
 ```console
-$ docker-compose up -d
+$ docker compose up -d
 ```
+
+### Executar a Stack Hot-Warm-Cold-Frozen
+
+No diretório raiz do projeto, execute o seguinte comando:
+
+```console
+$ docker compose -f docker-compose-hwcf.yaml up -d 
+```
+
+Obs: Nesse projeto, o bucket para snapshot no Minio é criado automaticamente e, no Elasticsarch, o repositório de Snapshot e a SLM Policy (snapshots diários) também são criados automaticamente.
+
 ---
 ### Upgrade de versão
 

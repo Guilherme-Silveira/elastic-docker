@@ -1,0 +1,372 @@
+version: '3.2'
+
+services:
+
+  minio:
+    image: guisilveira/minio
+    container_name: minio
+    networks:
+      - elk
+    ports:
+      - 9000:9000
+      - 9001:9001
+    command: server /data --console-address ":9001"
+    volumes:
+    - minio:/data
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio123
+    healthcheck:
+      test: ["CMD-SHELL", "curl localhost:9000 | grep 'Access Denied'"]
+      interval: 1s
+      timeout: 5s
+      retries: 120
+
+  createbuckets:
+    image: minio/mc
+    container_name: createbuckets
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/bash -c "/usr/bin/mc config host add myminio http://minio:9000 minio minio123; /usr/bin/mc mb myminio/es-snapshot; exit 0;"
+    networks:
+      - elk
+
+  setup:
+    container_name: setup
+    build:
+      context: setup/
+      args:
+        ELASTIC_VERSION: ${ELK_VERSION}
+    init: true
+    volumes:
+      - setup-hwcf:/state:Z
+      - certs:/usr/share/elasticsearch/config/certs
+    environment:
+      ELASTICSEARCH_HOST: "es01"
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f config/certs/es01/es01.crt ]"]
+      interval: 1s
+      timeout: 5s
+      retries: 120
+    networks:
+      - elk
+
+  es01:
+    depends_on:
+      setup:
+        condition: service_healthy
+      minio: 
+        condition: service_healthy
+    build: 
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    image: elasticsearch
+    container_name: es01
+    hostname: es01
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - esdata01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    environment:
+      - node.name=es01
+      - node.roles=["master", "data_content", "data_hot", "ingest", "remote_cluster_client", "ml", "transform"]
+      - cluster.initial_master_nodes=es01
+      - discovery.seed_hosts=es02,es03,es04
+      - ES_JAVA_OPTS=-Xms2048m -Xmx2048m -Des.allow_insecure_settings=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}
+      - bootstrap.memory_lock=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es01/es01.key
+      - xpack.security.transport.ssl.certificate=certs/es01/es01.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s http://localhost:9200 | grep 'missing authentication credentials'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+    networks:
+      - elk
+
+  es02:
+    depends_on:
+      - es01
+    build: 
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    image: elasticsearch
+    container_name: es02
+    hostname: es02
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - esdata02:/usr/share/elasticsearch/data
+    environment:
+      - node.name=es02
+      - node.roles=["data_warm"]
+      - discovery.seed_hosts=es01,es03,es04
+      - ES_JAVA_OPTS=-Xms1024m -Xmx1024m -Des.allow_insecure_settings=true
+      - bootstrap.memory_lock=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es02/es02.key
+      - xpack.security.transport.ssl.certificate=certs/es02/es02.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s http://localhost:9200 | grep 'missing authentication credentials'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+    networks:
+      - elk
+
+  es03:
+    depends_on:
+      - es02
+    build: 
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    image: elasticsearch
+    container_name: es03
+    hostname: es03
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - esdata03:/usr/share/elasticsearch/data
+    environment:
+      - node.name=es03
+      - node.roles=["data_cold"]
+      - discovery.seed_hosts=es01,es02,es04
+      - ES_JAVA_OPTS=-Xms1024m -Xmx1024m -Des.allow_insecure_settings=true
+      - bootstrap.memory_lock=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es03/es03.key
+      - xpack.security.transport.ssl.certificate=certs/es03/es03.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s http://localhost:9200 | grep 'missing authentication credentials'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+    networks:
+      - elk
+
+  es04:
+    depends_on:
+      - es03
+    build: 
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    image: elasticsearch
+    container_name: es04
+    hostname: es04
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - esdata04:/usr/share/elasticsearch/data
+    environment:
+      - node.name=es04
+      - node.roles=["data_frozen"]
+      - discovery.seed_hosts=es01,es02,es03
+      - ES_JAVA_OPTS=-Xms1024m -Xmx1024m -Des.allow_insecure_settings=true
+      - xpack.searchable.snapshot.shared_cache.size=20GB
+      - bootstrap.memory_lock=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es04/es04.key
+      - xpack.security.transport.ssl.certificate=certs/es04/es04.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.verification_mode=certificate
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s http://localhost:9200 | grep 'missing authentication credentials'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+    networks:
+      - elk
+
+  ent-search:
+    image: enterprise-search
+    container_name: enterprise-search
+    build:
+      context: enterprise-search/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    restart: unless-stopped
+    depends_on:
+      - "elasticsearch"
+    environment:
+      - "JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ENT_SEARCH_DEFAULT_PASSWORD=changeme"
+      - "elasticsearch.username=elastic"
+      - "elasticsearch.password=${ELASTIC_PASSWORD:-}"
+      - "elasticsearch.host=http://es01:9200"
+      - "allow_es_settings_modification=true"
+      - "secret_management.encryption_keys=[4a2cd3f81d39bf28738c10db0ca782095ffac07279561809eecc722e0c20eb09]"
+      - "elasticsearch.startup_retry.interval=15"
+    ports:
+      - 3002:3002
+    networks:
+      - elk
+
+  logstash:
+    build:
+      context: logstash/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    image: logstash
+    container_name: logstash
+    volumes:
+      - type: bind
+        source: ./logstash/config/logstash.yml
+        target: /usr/share/logstash/config/logstash.yml
+        read_only: true
+      - type: bind
+        source: ./logstash/pipeline
+        target: /usr/share/logstash/pipeline
+        read_only: true
+      - type: bind
+        source: ./drivers
+        target: /usr/share/logstash/drivers
+        read_only: true
+    ports:
+      - "5044:5044"
+      #- "5001:5000/tcp"
+      #- "5001:5000/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx2g -Xms2g"
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    build:
+      context: kibana/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    image: kibana
+    container_name: kibana
+    healthcheck:
+      test: ["CMD-SHELL", "curl -u elastic:${ELASTIC_PASSWORD:-} -s http://kibana:5601/api/status | grep 'All services are available'"]
+      retries: 300
+      interval: 1s
+    volumes:
+      - type: bind
+        source: ./kibana/config/kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+    environment:
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
+      ELASTICSEARCH_HOSTS: http://es01:9200
+      XPACK_FLEET_AGENTS_ELASTICSEARCH_HOSTS: '["http://es01:9200"]'
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - ent-search
+
+  fleet-server:
+    container_name: fleet-server
+    hostname: fleet-server
+    image: elastic-agent
+    build:
+      context: fleet-server/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    ports:
+      - 8200:8200
+      - 8220:8220
+    environment:
+      FLEET_SERVER_ENABLE: "1"
+      FLEET_SERVER_POLICY_ID: "fleet-server"
+      FLEET_SERVER_HOST: "0.0.0.0"
+      FLEET_SERVER_PORT: "8220"
+      FLEET_SERVER_ELASTICSEARCH_HOST: http://es01:9200
+      FLEET_SERVER_ELASTICSEARCH_USERNAME: "${ES_SUPERUSER_USER:-elastic}"
+      FLEET_SERVER_ELASTICSEARCH_PASSWORD: "${ELASTIC_PASSWORD:-}"
+      KIBANA_FLEET_HOST: "http://kibana:5601"
+      KIBANA_FLEET_USERNAME: "${ES_SUPERUSER_USER:-elastic}"
+      KIBANA_FLEET_PASSWORD: "${ELASTIC_PASSWORD:-}"
+      FLEET_INSECURE: "true"
+      FLEET_SERVER_INSECURE_HTTP: "true"
+    volumes:
+      - type: volume
+        source: agent-data-hwcf
+        target: /usr/share/elastic-agent/state
+    depends_on:
+      es01: { condition: service_healthy }
+      kibana: { condition: service_healthy }
+    networks:
+      - elk
+
+networks:
+  elk:
+    name: elk
+    driver: bridge
+
+volumes:
+  minio:
+    driver: local
+  setup-hwcf:
+    name: setup-hwcf
+    driver: local
+  certs:
+    name: certs
+    driver: local
+  esdata01:
+    driver: local
+  esdata02:
+    driver: local
+  esdata03:
+    driver: local
+  esdata04:
+    driver: local
+  agent-data-hwcf:
+    driver: local
