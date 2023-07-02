@@ -197,13 +197,16 @@ function create_snapshot_repo {
 	local -i result=1
 	local output
 
-	output="$(curl "${args[@]}")"
-	if [[ "${output: -3}" -eq 200 ]]; then
-		result=0
-	fi
+	if [ $elasticsearch_host == "es01" ]; then
+		output="$(curl "${args[@]}")"
+		if [[ "${output: -3}" -eq 200 ]]; then
+			result=0
+		fi
+	
 
-	if ((result)); then
-		echo -e "\n${output::-3}\n"
+		if ((result)); then
+			echo -e "\n${output::-3}\n"
+		fi
 	fi
 
 	return $result
@@ -224,14 +227,15 @@ function create_slm_policy {
 
 	local -i result=1
 	local output
+	if [ $elasticsearch_host == "es01" ]; then
+		output="$(curl "${args[@]}")"
+		if [[ "${output: -3}" -eq 200 ]]; then
+			result=0
+		fi
 
-	output="$(curl "${args[@]}")"
-	if [[ "${output: -3}" -eq 200 ]]; then
-		result=0
-	fi
-
-	if ((result)); then
-		echo -e "\n${output::-3}\n"
+		if ((result)); then
+			echo -e "\n${output::-3}\n"
+		fi
 	fi
 
 	return $result
