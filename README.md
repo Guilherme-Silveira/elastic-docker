@@ -28,8 +28,11 @@ perfeitamente, sem perder nenhum dado.*
     - [Executar a Stack](#executar-a-stack)
     - [Executar a Stack Hot-Warm-Cold-Frozen](#executar-a-stack-hot-warm-cold-frozen)
     - [Upgrade de versão](#upgrade-de-versão)
+    - [Upgrade a Stack Hot-Warm-Cold-Frozen](#upgrade-a-stack-hot-warm-cold-frozen)
     - [Desligar a Stack](#desligar-a-stack)
+    - [Desligar a Stack Hot-Warm-Cold-Frozen](#desligar-a-stack-hot-warm-cold-frozen)
     - [Remover Stack](#remover-stack)
+    - [Remover a Stack Hot-Warm-Cold-Frozen](#remover-a-stack-hot-warm-cold-frozen)
 - [Initial setup](#initial-setup)
     - [Autenticação](#autenticação)
     - [Acessar Kibana](#acessar-kibana)
@@ -125,6 +128,14 @@ $ docker-compose up -d --build
 
 Se você está executando esse Stack pela primeira vez, por favor, leia atentamente o bloco acima.
 
+### Upgrade a Stack Hot-Warm-Cold-Frozen
+
+Siga os mesmos passos acima, porém inclua o `-f docker-compose-hwcf.yaml` entre o statement `docker-compose` e a ação que será executada (e.g., `up -d --build`). Exemplificando o resultado final, ficaria assim:
+
+```console
+$ docker-compose -f docker-compose-hwcf.yaml up -d --build
+```
+
 ---
 ### Desligar a Stack
 
@@ -132,6 +143,14 @@ Para simplesmente parar os containers da Stack que estão em execução e não r
 
 ```console
 $ docker-compose stop
+```
+
+### Desligar a Stack Hot-Warm-Cold-Frozen
+
+No diretório raiz do projeto, execute o seguinte comando:
+
+```console
+$ docker compose -f docker-compose-hwcf.yaml stop
 ```
 
 ---
@@ -143,6 +162,14 @@ Para remover completamente a Stack, incluindo os dados persistidos, execute o se
 
 ```console
 $ docker-compose down -v
+```
+
+### Remover a Stack Hot-Warm-Cold-Frozen
+
+No diretório raiz do projeto, execute o seguinte comando:
+
+```console
+$ docker compose -f docker-compose-hwcf.yaml down -v
 ```
 
 ---
