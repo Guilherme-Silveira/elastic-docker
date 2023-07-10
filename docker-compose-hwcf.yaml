@@ -79,7 +79,7 @@ services:
       - node.roles=["master", "data_content", "data_hot", "ingest", "remote_cluster_client", "ml", "transform"]
       - cluster.initial_master_nodes=es01
       - discovery.seed_hosts=es02,es03,es04
-      - ES_JAVA_OPTS=-Xms2048m -Xmx2048m -Des.allow_insecure_settings=true
+      - ES_JAVA_OPTS=-Xms1024m -Xmx1024m -Des.allow_insecure_settings=true
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}
       - bootstrap.memory_lock=true
       - xpack.security.http.ssl.enabled=false
@@ -122,7 +122,7 @@ services:
       - node.name=es02
       - node.roles=["data_warm"]
       - discovery.seed_hosts=es01,es03,es04
-      - ES_JAVA_OPTS=-Xms1024m -Xmx1024m -Des.allow_insecure_settings=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m -Des.allow_insecure_settings=true
       - bootstrap.memory_lock=true
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=true
@@ -164,7 +164,7 @@ services:
       - node.name=es03
       - node.roles=["data_cold"]
       - discovery.seed_hosts=es01,es02,es04
-      - ES_JAVA_OPTS=-Xms1024m -Xmx1024m -Des.allow_insecure_settings=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m -Des.allow_insecure_settings=true
       - bootstrap.memory_lock=true
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=true
@@ -206,7 +206,7 @@ services:
       - node.name=es04
       - node.roles=["data_frozen"]
       - discovery.seed_hosts=es01,es02,es03
-      - ES_JAVA_OPTS=-Xms1024m -Xmx1024m -Des.allow_insecure_settings=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m -Des.allow_insecure_settings=true
       - xpack.searchable.snapshot.shared_cache.size=20GB
       - bootstrap.memory_lock=true
       - xpack.security.http.ssl.enabled=false
@@ -282,7 +282,7 @@ services:
       #- "5001:5000/udp"
       - "9600:9600"
     environment:
-      LS_JAVA_OPTS: "-Xmx2g -Xms2g"
+      LS_JAVA_OPTS: "-Xmx1g -Xms1g"
       LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
     networks:
       - elk

@@ -96,6 +96,8 @@ $ docker compose up -d
 
 ### Executar a Stack Hot-Warm-Cold-Frozen
 
+No caso da execução da Stack HWCF, existe um pré requisito. É necessário configurar o parâmetro `vm.max_map_count` no seu Sistema Operacional. Para fazer isso no seu sistema operacional (Linux, Mac ou Windows), siga as instruções descritas [aqui](https://www.elastic.co/guide/en/elasticsearch/reference/master/docker.html#_set_vm_max_map_count_to_at_least_262144). 
+
 No diretório raiz do projeto, execute o seguinte comando:
 
 ```console
