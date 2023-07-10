@@ -240,7 +240,7 @@ services:
         ELK_VERSION: $ELK_VERSION
     restart: unless-stopped
     depends_on:
-      - "elasticsearch"
+      - es01
     environment:
       - "JAVA_OPTS=-Xms512m -Xmx512m"
       - "ENT_SEARCH_DEFAULT_PASSWORD=changeme"
@@ -286,7 +286,7 @@ services:
     networks:
       - elk
     depends_on:
-      - elasticsearch
+      - es01
 
   kibana:
     build:
@@ -313,7 +313,7 @@ services:
     networks:
       - elk
     depends_on:
-      - elasticsearch
+      - es01
       - ent-search
 
   fleet-server:
