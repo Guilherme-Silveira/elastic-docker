@@ -33,11 +33,12 @@ services:
       - elk
 
   setup:
-    container_name: setup
+    container_name: setup-hwcf
     build:
       context: setup/
       args:
         ELASTIC_VERSION: ${ELK_VERSION}
+    image: setup-hwcf
     init: true
     volumes:
       - setup-hwcf:/state:Z
