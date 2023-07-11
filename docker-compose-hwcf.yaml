@@ -207,7 +207,7 @@ services:
       - node.roles=["data_frozen"]
       - discovery.seed_hosts=es01,es02,es03
       - ES_JAVA_OPTS=-Xms512m -Xmx512m -Des.allow_insecure_settings=true
-      - xpack.searchable.snapshot.shared_cache.size=20GB
+      - xpack.searchable.snapshot.shared_cache.size=5GB
       - bootstrap.memory_lock=true
       - xpack.security.http.ssl.enabled=false
       - xpack.security.transport.ssl.enabled=true

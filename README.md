@@ -19,6 +19,8 @@ perfeitamente, sem perder nenhum dado.*
 - [Sumário](#sumário)
 - [Requisitos](#requisitos)
     - [Configurações necessárias](#configurações-necessárias)
+    - [Configurações de memória da Stack](#configurações-de-memória-da-stack)
+    - [Frozen Cache](#frozen-cache)
     - [Portas expostas pela Elastic Stack](#portas-expostas-pela-elastic-stack)
     - [Docker Desktop](#docker-desktop)
       - [macOS](#macos)
@@ -50,7 +52,33 @@ perfeitamente, sem perder nenhum dado.*
 
 * [Docker Engine](https://docs.docker.com/install/) versão **17.05** ou mais recente
 * [Docker Compose](https://docs.docker.com/compose/install/) versão **1.20.0** ou mais recente
-* 1.5 GB of RAM
+* 4GB of RAM (Mínimo)
+
+### Configurações de memória da Stack
+
+- **docker-compose.yaml**
+
+  Os serviços do Elasticsearch, Logstash e Enterprise Search possuem configurações de JVM Heap Size. Em todos eles, essa memória é configurada em variáveis de ambiente em cada um dos containers, então por favor, altere os valores de acordo com o seu ambiente.
+
+- **docker-compose-hwcf.yaml**
+
+  Os serviços do ES01, ES02, ES03, ES04, Logstash e Enterprise Search possuem configurações de JVM Heap Size. Em todos eles, essa memória é configurada em variáveis de ambiente em cada um dos containers, então por favor, altere os valores de acordo com o seu ambiente.
+
+**Elasticsearch Heap**:
+  
+  - ES_JAVA_OPTS: "-Xmx2048m -Xms2048m"
+
+**Logstash Heap**:
+
+  - LS_JAVA_OPTS: "-Xmx1g -Xms1g"
+  
+**Enterprise Search Heap**:
+
+  - "JAVA_OPTS=-Xms512m -Xmx512m"
+
+### Frozen Cache
+
+  Na Stack Hot-Warm-Cold-Frozen (docker-compose-hwcf.yaml), no serviço `es04` (frozen node), foi definido o parâmetro `xpack.searchable.snapshot.shared_cache.size=5GB` nas variáveis de ambiente. Esse parâmetro define o quanto do disco da sua máquina será utilizado para cache no frozen node. O valor default é `5GB`, porém é válido ajustar esse parâmetro de acordo com o disco da sua máquina e do seu caso de uso.
 
 ---
 ### Portas expostas pela Elastic Stack
