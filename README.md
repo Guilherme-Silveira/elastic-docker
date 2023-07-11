@@ -52,7 +52,7 @@ perfeitamente, sem perder nenhum dado.*
 
 * [Docker Engine](https://docs.docker.com/install/) versão **17.05** ou mais recente
 * [Docker Compose](https://docs.docker.com/compose/install/) versão **1.20.0** ou mais recente
-* 4GB of RAM (Mínimo)
+* 8GB of RAM (Mínimo)
 
 ### Configurações de memória da Stack
 
@@ -66,7 +66,7 @@ perfeitamente, sem perder nenhum dado.*
 
 **Elasticsearch Heap**:
   
-  - ES_JAVA_OPTS: "-Xmx1024m -Xms1024m"
+  - ES_JAVA_OPTS: "-Xmx2048m -Xms2048m"
 
 **Logstash Heap**:
 
