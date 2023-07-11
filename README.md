@@ -66,11 +66,11 @@ perfeitamente, sem perder nenhum dado.*
 
 **Elasticsearch Heap**:
   
-  - ES_JAVA_OPTS: "-Xmx2048m -Xms2048m"
+  - ES_JAVA_OPTS: "-Xmx1024m -Xms1024m"
 
 **Logstash Heap**:
 
-  - LS_JAVA_OPTS: "-Xmx1g -Xms1g"
+  - LS_JAVA_OPTS: "-Xmx512m -Xms512m"
   
 **Enterprise Search Heap**:
 

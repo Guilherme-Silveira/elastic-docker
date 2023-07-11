@@ -39,7 +39,7 @@ services:
       - "9200:9200"
       - "9300:9300"
     environment:
-      ES_JAVA_OPTS: "-Xmx2048m -Xms2048m"
+      ES_JAVA_OPTS: "-Xmx1024m -Xms1024m"
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
       # Use single node discovery in order to disable production mode and avoid bootstrap checks.
       # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
@@ -97,7 +97,7 @@ services:
       #- "5001:5000/udp"
       - "9600:9600"
     environment:
-      LS_JAVA_OPTS: "-Xmx1g -Xms1g"
+      LS_JAVA_OPTS: "-Xmx512m -Xms512m"
       LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
     networks:
       - elk
