@@ -53,6 +53,7 @@ perfeitamente, sem perder nenhum dado.*
 * [Docker Engine](https://docs.docker.com/install/) versão **17.05** ou mais recente
 * [Docker Compose](https://docs.docker.com/compose/install/) versão **1.20.0** ou mais recente
 * 8GB of RAM (Mínimo)
+* 16GB of RAM (Ideal)
 
 ### Configurações de memória da Stack
 
