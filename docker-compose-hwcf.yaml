@@ -79,7 +79,7 @@ services:
       - node.roles=["master", "data_content", "data_hot", "ingest", "remote_cluster_client", "ml", "transform"]
       - cluster.initial_master_nodes=es01
       - discovery.seed_hosts=es02,es03,es04
-      - ES_JAVA_OPTS=-Xms1024m -Xmx1024m -Des.allow_insecure_settings=true
+      - ES_JAVA_OPTS=-Xms2048m -Xmx2048m -Des.allow_insecure_settings=true
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}
       - bootstrap.memory_lock=true
       - xpack.security.http.ssl.enabled=false
