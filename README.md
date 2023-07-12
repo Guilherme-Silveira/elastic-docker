@@ -40,6 +40,7 @@ perfeitamente, sem perder nenhum dado.*
     - [Acessar Kibana](#acessar-kibana)
 - [Configuração](#configuração)
     - [Diretório de configuração de cada componente](#diretório-de-configuração-de-cada-componente)
+    - [Logstash Pipelines](#logstash-pipelines)
     - [Expiração da Licença](#expiração-da-licença)
 - [Extensão](#extensão)
     - [Como adicionar plugins](#como-adicionar-plugins)
@@ -239,6 +240,13 @@ Configurações nos arquivos YAML não são dinâmicas, ou seja, caso mude algum
 * Fleet Server: `agent-data/` **Esse diretório só será criado após a primeira execução da Stack**
 
 **Enterprise Search e Fleet Server são configurados com variáveis de ambiente no próprio docker-compose.yaml**
+
+---
+### Logstash Pipelines
+As pipelines do Logstash estão definidas no diretório `logstash/pipeline` e são divididas em dois diretórios:
+
+  - **single-node**: Crie dentro desse diretório pipelines que serão executadas na Stack single node.
+  - **hwcf**: Crie dentro desse diretório pipelines que serão executadas na Stack Hot-Warm-Cold-Frozen.
 
 ---
 
