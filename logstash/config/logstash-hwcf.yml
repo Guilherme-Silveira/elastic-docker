@@ -4,6 +4,7 @@
 #
 http.host: "0.0.0.0"
 xpack.monitoring.elasticsearch.hosts: [ "http://es01:9200" ]
+config.reload.automatic: true
 
 ## X-Pack security credentials
 #
