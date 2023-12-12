@@ -45,6 +45,7 @@ perfeitamente, sem perder nenhum dado.*
 - [Extensão](#extensão)
     - [Como adicionar plugins](#como-adicionar-plugins)
 - [Fleet/APM](#fleetapm)
+- [Minio - Snapshot Repository](#minio---snapshot-repository)
 
 ---
 # Requisitos
@@ -329,3 +330,12 @@ Eu fiz algumas pesquisas e tive muita dificuldade em achar algum ambiente que o 
     xpack.fleet.agents.elasticsearch.hosts: ["http://elasticsearch:9200"]
     xpack.fleet.agents.fleet_server.hosts: ["http://fleet-server:8220"]
    ```
+
+# Minio - Snapshot Repository
+
+Para a arquitetura HWCF, há um serviço do Minio configurado como um Snapshot Repository. Para acessá-lo, siga as instruções abaixo:
+
+* Minio Console: `http://localhost:9001`
+* Minio Endpoint (API): `http://localhost:9000`
+* Username: `minio`
+* Password: `minio123`
